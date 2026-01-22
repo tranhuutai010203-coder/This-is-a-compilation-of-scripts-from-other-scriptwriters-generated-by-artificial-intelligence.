@@ -1,8 +1,8 @@
 --[[
-    TITAN OMNI-BANK v14.0 - THE WORLD'S LARGEST SCRIPT REPOSITORY
-    - Categories: 8
-    - Total Scripts: 100+ (via Integrated Cloud Hubs)
-    - Optimization: Hyper-Fast Loading
+    TITAN OMNI-BANK v14.0 - FIXED & RESTORED
+    - Categories: 8 + Special Vault
+    - Total Scripts: 100+ (Full List Restored)
+    - Fix: Anti-Cache & Error Handling
 ]]
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -15,15 +15,40 @@ local Window = Rayfield:CreateWindow({
     KeySystem = false
 })
 
--- Hàm "Rút tiền" (Load Script)
+-- Hàm "Rút tiền" đã được FIX lỗi không tải được
 local function Load(name, url)
     local success, err = pcall(function()
-        loadstring(game:HttpGet(url))()
+        -- Thêm 'true' để bypass cache, đảm bảo tải bản mới nhất
+        loadstring(game:HttpGet(url, true))()
     end)
     if not success then
         warn("Lỗi khi tải " .. name .. ": " .. err)
+        Rayfield:Notify({
+            Title = "LỖI GIAO DỊCH!",
+            Content = "Không thể tải " .. name .. ". Link có thể đã chết.",
+            Duration = 3
+        })
+    else
+        Rayfield:Notify({
+            Title = "THÀNH CÔNG",
+            Content = "Đã rút thành công: " .. name,
+            Duration = 2
+        })
     end
 end
+
+-- ==========================================
+-- 0. MỤC: MASTER VAULT (TÀI SẢN VIP)
+-- ==========================================
+local MasterTab = Window:CreateTab("👑 Master Vault", 4483362458)
+MasterTab:CreateButton({
+    Name = "🚀 AI MASTER COMPILATION (TRANHUUTAI)",
+    Callback = function() Load("AI Master", "https://raw.githubusercontent.com/tranhuutai010203-coder/This-is-a-compilation-of-scripts-from-other-scriptwriters-generated-by-artificial-intelligence./refs/heads/main/main.lua") end
+})
+MasterTab:CreateButton({
+    Name = "🛡️ SYSTEM-SEC SECURITY",
+    Callback = function() Load("SystemSec", "https://raw.githubusercontent.com/SystemSecRoblox/SystemSec/refs/heads/main/main.lua") end
+})
 
 -- ==========================================
 -- 1. MỤC: UNIVERSAL HUB (Hỗ trợ 1000+ game)
@@ -203,7 +228,7 @@ local SearchTab = Window:CreateTab("Search Engine", 4483362458)
 SearchTab:CreateButton({
     Name = "🔍 Mở ScriptBlox Searcher (Tìm 10,000+ Script)",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/ScriptBlox/Searcher/main/Source.lua"))()
+        Load("ScriptBlox", "https://raw.githubusercontent.com/ScriptBlox/Searcher/main/Source.lua")
     end
 })
 
