@@ -1,81 +1,70 @@
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
-local Window = Rayfield:CreateWindow({
-   Name = "🌌 OMNI-HUB V15 | ANTI-DIE API",
-   LoadingTitle = "Đang kết nối Database ScriptBlox...",
-   LoadingSubtitle = "Hệ thống tự cập nhật Link 2026",
-   ConfigurationSaving = { Enabled = false },
-   KeySystem = false
+local Window = Fluent:CreateWindow({
+    Title = "Gemini FE | Ghost Mode",
+    SubTitle = "Execute & Disappear",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(450, 320),
+    Acrylic = true,
+    Theme = "Dark"
 })
 
--- =================================================================
--- PHƯƠNG ÁN B: HÀM TẢI SCRIPT CHỐNG DIE (LUÔN LẤY BẢN MỚI NHẤT)
--- =================================================================
-local function LoadScript(slug)
-    -- Sử dụng API Proxy để lấy script mới nhất từ database cộng đồng
-    local success, content = pcall(function()
-        return game:HttpGet("https://raw.githubusercontent.com/The-Gamer-Joint/ScriptBlox-Searcher/main/ScriptBlox%20Searcher.lua")
-    end)
-    
-    if success then
-        loadstring(content)()
-        Rayfield:Notify({Title = "Hệ thống", Content = "Đã mở trình tìm kiếm cập nhật!", Duration = 3})
-    else
-        -- Nếu ngay cả API cũng lỗi, dùng kho lưu trữ dự phòng cố định
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/1201nelson/Vgan/main/Vgan"))()
-    end
-end
-
--- =================================================================
--- DANH SÁCH 10 TAB (CẤU TRÚC 50 SLOT/TAB)
--- =================================================================
 local Tabs = {
-    "👑 Siêu Admin", "🤡 Troll FE", "🎯 PVP & Combat", "📦 Mega Hubs", 
-    "🍎 Anime Farm", "🐾 Simulators", "🛡️ Anti-Ban", "📱 Mobile Tools", 
-    "🔍 Search V3", "🔧 Dev Utilities"
+    Main = Window:AddTab({ Title = "Main", Icon = "ghost" })
 }
 
--- KHO LINK GỐC (CHỈ GIỮ LẠI NHỮNG LINK CHÍNH CHỦ KHÔNG THỂ DIE)
-local ImmortalLinks = {
-    ["Infinite Yield"] = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source",
-    ["V.G Hub"] = "https://raw.githubusercontent.com/1201nelson/Vgan/main/Vgan",
-    ["Ez Hub"] = "https://raw.githubusercontent.com/debug101/UnknownHub/main/UnknownHub.lua",
-    ["Dark Dex"] = "https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua",
-    ["SimpleSpy"] = "https://raw.githubusercontent.com/78n/SimpleSpy/main/SimpleSpySource.lua"
-}
+Tabs.Main:AddButton({
+    Title = "Kích hoạt FE Invisible (Full)",
+    Description = "Người khác sẽ thấy bạn đứng yên tại chỗ cũ",
+    Callback = function()
+        local Player = game.Players.LocalPlayer
+        local Character = Player.Character
+        if not Character then return end
 
-for _, tabName in ipairs(Tabs) do
-    local T = Window:CreateTab(tabName)
-    
-    T:CreateSection("--- PHƯƠNG ÁN B: TỰ ĐỘNG CẬP NHẬT ---")
-    T:CreateButton({
-        Name = "🆘 CẬP NHẬT LINK MỚI (Dùng khi link die)",
-        Callback = function() LoadScript() end
-    })
+        local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+        local RootPart = Character:FindFirstChild("HumanoidRootPart")
 
-    T:CreateSection("--- DANH SÁCH 50 SCRIPT ---")
-
-    -- Nạp các link gốc vào đầu tab
-    for name, url in pairs(ImmortalLinks) do
-        T:CreateButton({
-            Name = "🔥 " .. name,
-            Callback = function() 
-                pcall(function() loadstring(game:HttpGet(url))() end)
+        -- Thực hiện kỹ thuật Desync
+        if RootPart and Humanoid then
+            -- Tạo một bản sao vị trí để tránh bị văng
+            local Location = RootPart.CFrame
+            
+            -- Xóa các khớp nối quan trọng để đánh lừa Server
+            for _, v in pairs(Character:GetDescendants()) do
+                if v:IsA("Motor6D") or v:IsA("Weld") or v:IsA("Snap") then
+                    v:Destroy()
+                end
             end
-        })
-    end
+            
+            -- Làm tàng hình các bộ phận trên máy của bạn
+            for _, part in pairs(Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.Transparency = 0.5 -- Để bạn vẫn thấy bóng mờ của mình
+                    part.CanCollide = false
+                elseif part:IsA("Decal") then
+                    part.Transparency = 1
+                end
+            end
 
-    -- Lấp đầy 50 nút bằng hệ thống tìm kiếm thông minh
-    for i = 6, 50 do
-        T:CreateButton({
-            Name = "🔗 [" .. i .. "] Tìm bản " .. tabName .. " mới nhất",
-            Callback = function() LoadScript() end
-        })
+            Fluent:Notify({
+                Title = "Thành công",
+                Content = "Bạn đã tàng hình FE. Reset để hiện hình.",
+                Duration = 5
+            })
+        end
     end
-end
+})
 
-Rayfield:Notify({
-   Title = "HỆ THỐNG SẴN SÀNG",
-   Content = "Đã sửa lỗi Link Die bằng hệ thống API dự phòng.",
-   Duration = 5,
+Tabs.Main:AddButton({
+    Title = "Tự tử (Reset Character)",
+    Callback = function()
+        game.Players.LocalPlayer.Character:BreakJoints()
+    end
+})
+
+-- Thông báo khi load xong
+Fluent:Notify({
+    Title = "Gemini Hub",
+    Content = "Script đã sẵn sàng!",
+    Duration = 3
 })
