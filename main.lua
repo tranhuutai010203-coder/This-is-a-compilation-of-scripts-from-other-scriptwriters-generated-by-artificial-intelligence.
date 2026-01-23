@@ -1,68 +1,87 @@
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Gemini FE | Ghost Mode",
-    SubTitle = "Execute & Disappear",
+    Title = "Gemini FE | Ghost Premium",
+    SubTitle = "Tàng hình thực thụ",
     TabWidth = 160,
-    Size = UDim2.fromOffset(450, 320),
+    Size = UDim2.fromOffset(450, 350),
     Acrylic = true,
     Theme = "Dark"
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "ghost" })
+    Main = Window:AddTab({ Title = "Tính năng", Icon = "ghost" })
 }
 
-Tabs.Main:AddButton({
-    Title = "Kích hoạt FE Invisible (Full)",
-    Description = "Người khác sẽ thấy bạn đứng yên tại chỗ cũ",
-    Callback = function()
-        local Player = game.Players.LocalPlayer
-        local Character = Player.Character
-        if not Character then return end
+local Toggle = Tabs.Main:AddToggle("FEInvis", {Title = "Chế độ Tàng Hình (FE)", Default = false })
 
-        local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-        local RootPart = Character:FindFirstChild("HumanoidRootPart")
+-- Biến lưu trạng thái
+local InvisibilityEnabled = false
+local FakeCharacter = nil
 
-        -- Thực hiện kỹ thuật Desync
-        if RootPart and Humanoid then
-            -- Tạo một bản sao vị trí để tránh bị văng
-            local Location = RootPart.CFrame
-            
-            -- Xóa các khớp nối quan trọng để đánh lừa Server
+Toggle:OnChanged(function(Value)
+    InvisibilityEnabled = Value
+    local Player = game.Players.LocalPlayer
+    local Character = Player.Character
+    
+    if InvisibilityEnabled then
+        -- Kỹ thuật Tàng hình di chuyển (Desync Ghost)
+        if Character and Character:FindFirstChild("HumanoidRootPart") then
+            -- Làm mờ nhân vật trên máy mình để biết đang bật
             for _, v in pairs(Character:GetDescendants()) do
-                if v:IsA("Motor6D") or v:IsA("Weld") or v:IsA("Snap") then
-                    v:Destroy()
-                end
+                if v:IsA("BasePart") then v.Transparency = 0.7 end
             end
             
-            -- Làm tàng hình các bộ phận trên máy của bạn
-            for _, part in pairs(Character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.Transparency = 0.5 -- Để bạn vẫn thấy bóng mờ của mình
-                    part.CanCollide = false
-                elseif part:IsA("Decal") then
-                    part.Transparency = 1
-                end
-            end
-
+            -- Đánh lừa Server: Ngắt kết nối RootPart tạm thời
+            Character.HumanoidRootPart.Parent = game.Players -- Giấu nó đi
+            
             Fluent:Notify({
-                Title = "Thành công",
-                Content = "Bạn đã tàng hình FE. Reset để hiện hình.",
-                Duration = 5
+                Title = "Đã bật",
+                Content = "Người khác không còn thấy bạn di chuyển!",
+                Duration = 3
             })
+        end
+    else
+        -- Tắt tàng hình: Trả lại mọi thứ về cũ
+        if Character and game.Players:FindFirstChild("HumanoidRootPart") then
+            game.Players.HumanoidRootPart.Parent = Character
+            
+            for _, v in pairs(Character:GetDescendants()) do
+                if v:IsA("BasePart") then v.Transparency = 0 end
+            end
+            
+            -- Buộc nhân vật hồi phục khớp nối (đôi khi cần Reset)
+            Fluent:Notify({
+                Title = "Đã tắt",
+                Content = "Bạn đã hiện hình (Nếu bị lỗi hãy Reset)",
+                Duration = 3
+            })
+        end
+    end
+end)
+
+-- Thêm thanh chỉnh tốc độ chạy khi tàng hình
+local Slider = Tabs.Main:AddSlider("Speed", {
+    Title = "Tốc độ di chuyển",
+    Description = "Dùng để lướt đi khi tàng hình",
+    Default = 16,
+    Min = 16,
+    Max = 150,
+    Rounding = 1,
+    Callback = function(Value)
+        if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
         end
     end
 })
 
 Tabs.Main:AddButton({
-    Title = "Tự tử (Reset Character)",
+    Title = "Fix Kẹt / Reset",
     Callback = function()
         game.Players.LocalPlayer.Character:BreakJoints()
     end
 })
 
--- Thông báo khi load xong
 Fluent:Notify({
     Title = "Gemini Hub",
     Content = "Script đã sẵn sàng!",
